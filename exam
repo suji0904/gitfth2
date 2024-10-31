@@ -1,0 +1,27 @@
+arm rigging
+
+
+다음 위치에 저장해주세요.
+
+- confirm
+  - humanarm.ma
+
+
+요구사항.
+
+fk / ik
+stretch
+bend
+elbow pin controller
+armpit rotate
+
+joint hierarchy
+
+- world_jnt
+  - arm_L0_shoulder_jnt
+    - arm_L0_twist0_jnt
+      - arm_L0_twist2_jnt
+        - arm_L0_elbow_jnt
+          - arm_L0_twist3_jnt
+            - arm_L0_twist4_jnt
+              - arm_L0_wrist_jnt
