@@ -5,11 +5,12 @@
 
 
 # 1. Create Guides locator
+
 import maya.cmds as cmds
 import maya.mel as mel
-
+    
 armParts = ['shoulder', 'elbow', 'wrist']
-
+    
 cmds.spaceLocator(name="world")
 cmds.spaceLocator(name="arm_L0_"+armParts[0])
 cmds.move(2,0,0)
@@ -21,7 +22,7 @@ cmds.move(18,0,0)
 cmds.parent("arm_L0_shoulder", "world")
 cmds.parent("arm_L0_elbow", "arm_L0_shoulder")
 cmds.parent("arm_L0_wrist", "arm_L0_elbow")
-
+    
 guideLoc = ["world", "arm_L0_shoulder", "arm_L0_elbow", "arm_L0_wrist"]
 
 
@@ -231,7 +232,7 @@ for i in range(len(driverParent)):
 cmds.connectAttr(armOption+'.Ik_Fk_Switch', 'ik_grp.visibility')
 cmds.connectAttr("ikfk_reverse.outputX", 'fk_grp.visibility')
     
-    # ik Stretch ------------------------------------------------------
+    # ik Stretch 
     # create locators
 locDup = cmds.duplicate(guideLoc[1], renameChildren=True)
 for l in range(len(locDup)):
@@ -257,7 +258,6 @@ for d in range(2):
 disSumNode = cmds.shadingNode('plusMinusAverage', asUtility=1, n="armDisSum")
 cmds.connectAttr(upperDis+".distance", disSumNode+".input1D[0]")
 cmds.connectAttr(lowerDis+".distance", disSumNode+".input1D[1]")
-
 
 disbtw()
 armDis = cmds.rename("arm_dis")
@@ -314,9 +314,6 @@ cmds.parent(ikLocGrp, "ik_grp")
 for i in range(3):
     cmds.parent("arm_L0_"+armParts[i]+"1", "ik_loc_grp")
 
-
-#-------------------------------------------------------------------------------
-
 # Bend
 allJnt=[jointNames[1]] #joints list
 for j in range(len(twistJnt1)):
@@ -332,17 +329,31 @@ for i in range(len(allJnt)):
     jntPos.append(xformJnt)
 
 bendCrv = [] #create bend curve - upper
+crvGrp = []
+tr = ("translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ")
+cuvname = "bend_upper_cuv01", "bend_upper_cuv02"
 for i in range(2):
-    createCrv = cmds.curve(n="bend_upper_cuv", d=3, p=[jntPos[0], jntPos[1], jntPos[2], jntPos[3]], k=[0,0,0,1,1,1])
+    createCrv = cmds.curve(n=cuvname[i], d=3, p=[jntPos[0], jntPos[1], jntPos[2], jntPos[3]], k=[0,0,0,1,1,1])
     bendCrv.append(createCrv)
-cmds.move(0,-0.5,0, bendCrv[0])
-cmds.move(0,0.5,0, bendCrv[1])
+    testgrp = cmds.createNode("transform")
+    cmds.parent(testgrp, driverGrp[0])
+    for i in range(len(tr)):
+        cmds.setAttr(testgrp+".{}".format(tr[i]), 0)
+    cmds.makeIdentity( apply=True, t=1, r=1, s=1, n=0 )
+    cmds.parent(createCrv, testgrp)
+    crvGrp.append(testgrp)
+
+cmds.setAttr(crvGrp[0]+".translate", 0, 0, .5)
+cmds.setAttr(crvGrp[1]+".translate", 0, 0, -.5)
+cmds.parent(bendCrv, w=1)
+
 bendNrbs = cmds.loft(bendCrv[0], bendCrv[1], ch=0, u=1, ar=0, d=1, rn=0, po=0, rsn=True, n="bend_upper_Nrbs")
-cmds.delete(bendCrv)
+cmds.delete(testgrp, bendCrv)
 
 bendCrv2 = [] #create bend curve - lower
 for i in range(2):
     createCrv2 = cmds.curve(n="bend_lower_cuv", d=3, p=[jntPos[3], jntPos[4], jntPos[5], jntPos[6]], k=[0,0,0,1,1,1])
+    createCrv2 = cmds.curve(n="bend_lower_cuv", d=3, p=[jntPos[3:]], k=[0,0,0,1,1,1])
     bendCrv2.append(createCrv2)
 cmds.move(0,-0.5,0, bendCrv2[0])
 cmds.move(0,0.5,0, bendCrv2[1])
@@ -392,7 +403,8 @@ cmds.parent(follicleJnt, follicleGrp)
 cmds.skinCluster(upper_follicles, bendNrbs)
 cmds.skinCluster(lower_follicles, bendNrbs2)
 
-##--------------------------------------------------------------------------
+
+
 # add twist joint
 list = "start", "end"
 twistlist = "Twist", "noTwist"
