@@ -386,6 +386,9 @@ for f in range(8): #parent follicle bind skin joint
 upper_follicles = [f for f in follicleJnt if "upper" in f]
 lower_follicles = [f for f in follicleJnt if "lower" in f]
 
+follicleGrp = cmds.createNode("transform", n="follicles_jnt_grp")
+cmds.parent(follicleJnt, follicleGrp)
+
 cmds.skinCluster(upper_follicles, bendNrbs)
 cmds.skinCluster(lower_follicles, bendNrbs2)
 
@@ -476,5 +479,6 @@ cmds.pointConstraint(driverGrp[2], lower_follicles[3])
 cmds.orientConstraint(notwistUpper[0], upper_follicles[0])
 cmds.orientConstraint(twistUpper[1], upper_follicles[3])
 
-#iktw_list twistUpper
-cmds.orientConstraint(twistUpper[0], notwistUpper[0], cntUppergrp)
+
+cmds.orientConstraint(twistUpper[0], notwistUpper[0], cntUppergrp) #bend cnt orient constraint
+cmds.orientConstraint(twistLower[0], notwistLower[0], cntLowergrp)
