@@ -25,3 +25,10 @@ joint hierarchy
           - arm_L0_twist3_jnt
             - arm_L0_twist4_jnt
               - arm_L0_wrist_jnt
+
+
+위 리그 스크립트로 만들기
+실행하는 방법도 적어놓기
+
+- confirm
+  - humanarm.py
